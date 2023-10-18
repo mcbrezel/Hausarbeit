@@ -3,3 +3,4 @@ Scripts/
 pyvenv.cfg
 Include/
 *.csv#
+__pycache__/
