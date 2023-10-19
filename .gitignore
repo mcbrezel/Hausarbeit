@@ -4,3 +4,4 @@ pyvenv.cfg
 Include/
 *.csv#
 __pycache__/
+.vscode/

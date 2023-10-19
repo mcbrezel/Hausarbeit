@@ -1,19 +1,25 @@
 import csv
-from numpy import genfromtxt
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+import numpy as np
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 from tables import Base, TrainingData
 import pandas as pd
+from matplotlib import style, pyplot as plot
 
 path_train = "data/train.csv"
-
-def load_data(path: str) -> list:
-   data = genfromtxt(path, delimiter=",", skip_header=1, converters={0: lambda s: str(s)})
-   return data.tolist()
+default_chunksize = 100
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite:///?DataSource=./data/database.db", echo=True)
-    Base.metadata.create_all(engine)
+    dataframe_train = pd.read_csv(path_train)
     
-    dataframe = pd.read_csv(path_train)
-    dataframe.to_sql(name=TrainingData.__tablename__, con=engine, if_exists="replace", index= False, chunksize=25, method="multi")
+    style.use(style="ggplot")
+    fig, ax = plot.subplots(3)
+    for i in range(1, dataframe_train.shape[1]):
+        ax[0].plot(dataframe_train.iloc[:,0], dataframe_train.iloc[:,i], \
+                     label="y" + str(i), linewidth=2)
+    ax[0].legend()
+    ax[0].grid(True, color="k")
+    plot.ylabel("y axis")
+    plot.xlabel("x axis")
+    plot.title("Training data")
+    plot.show()
