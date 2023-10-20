@@ -1,25 +1,23 @@
 import csv
 import numpy as np
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
-from tables import Base, TrainingData
 import pandas as pd
 from matplotlib import style, pyplot as plot
+import seaborn as sb
 
 path_train = "data/train.csv"
+path_ideal = "data/ideal.csv"
+path_test = "data/test.csv"
 default_chunksize = 100
 
 if __name__ == "__main__":
     dataframe_train = pd.read_csv(path_train)
-    
+    dataframe_ideal = pd.read_csv(path_ideal)
+    dataframe_test = pd.read_csv(path_test)
+
     style.use(style="ggplot")
-    fig, ax = plot.subplots(3)
-    for i in range(1, dataframe_train.shape[1]):
-        ax[0].plot(dataframe_train.iloc[:,0], dataframe_train.iloc[:,i], \
-                     label="y" + str(i), linewidth=2)
-    ax[0].legend()
-    ax[0].grid(True, color="k")
-    plot.ylabel("y axis")
-    plot.xlabel("x axis")
-    plot.title("Training data")
+    train_melted = dataframe_train.melt(id_vars="x", var_name="functions", value_name="y")
+    ideal_melted = dataframe_ideal.melt(id_vars="x", var_name="functions", value_name="y")
+    sb.relplot(data=train_melted, x="x", y="y", hue="functions", kind="line")
+    sb.relplot(data=ideal_melted, x="x", y="y", hue="functions", kind="line")
+    sb.relplot(data=dataframe_test, x="x", y="y")
     plot.show()
