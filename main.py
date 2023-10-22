@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import style, pyplot as plot
 import seaborn as sb
+import sys
 
 path_train = "data/train.csv"
 path_ideal = "data/ideal.csv"
@@ -21,12 +22,16 @@ if __name__ == "__main__":
     # sb.relplot(data=dataframe_test, x="x", y="y")
     # plot.show()
 
-    width_train = dataframe_train.shape[1]
-    width_ideal = dataframe_ideal.shape[1]
-    sum = np.empty(shape=(width_train - 1, width_ideal - 1))
-    for y_train in range(1, dataframe_train.shape[1]):
-        for y_ideal in range(1, dataframe_ideal.shape[1]):
-            sum[y_train - 1, y_ideal - 1] = np.sum((dataframe_train.iloc[:,y_train] - dataframe_ideal.iloc[:,y_ideal])**2)
-
-    for item in sum:
-        print(item)
+    # 1) Sum of Least Squares (SLS)
+    # Check which ideal function best fits which training function
+    count_ys_train = dataframe_train.shape[1] - 1
+    count_ys_ideal = dataframe_ideal.shape[1] - 1
+    sum = np.empty(shape=(count_ys_train, count_ys_ideal))
+    sls = np.full(shape=count_ys_train, fill_value=sys.float_info.max)
+    sls_index = np.full_like(sls, -1)
+    for y_train in range(0, count_ys_train):
+        for y_ideal in range(0, count_ys_ideal):
+            sum[y_train, y_ideal] = np.sum((dataframe_train.iloc[:, y_train + 1] - dataframe_ideal.iloc[:, y_ideal + 1]) ** 2)
+            if sum[y_train, y_ideal] < sls[y_train]:
+                sls[y_train] = sum[y_train, y_ideal]
+                sls_index[y_train] = y_ideal 
