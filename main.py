@@ -102,10 +102,10 @@ if __name__ == "__main__":
         sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals.iloc[:, index_sel_col + 1], ax=ax[0, index_sel_col], linewidth=1, linestyle="-")
     
     # row 2: training functions & selected ideal functions
-    for col in df_selected_ideals.columns[1:]:
-        sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals[col], ax=ax[1, 0])
-    for col in df_train.columns[1:]:
-        sns.lineplot(x=df_train["x"], y=df_train[col], ax=ax[1,0], linewidth=0.5, linestyle=":")
+    for col_index in range(count_ys_selected_ideal):
+        sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=0.5, linestyle=":")
+    for col_index in range(count_ys_selected_ideal):
+        sns.lineplot(x=df_train["x"], y=df_train.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=1, linestyle="-")
 
 
     plot.show()
