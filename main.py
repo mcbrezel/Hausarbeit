@@ -98,8 +98,9 @@ if __name__ == "__main__":
             # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
             x_coords[0] = x_coords[0] - x_coords[0]/1000         
             sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, index_sel_col], linewidth=0.5, linestyle=":")
-        sns.scatterplot(data=associated_points, \
-                        x=associated_points["x"], y=associated_points["y"], ax=ax[0, index_sel_col], size=1, legend=False)
+        sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], ax=ax[0, index_sel_col], size=1, legend=False)
+        sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals.iloc[:, index_sel_col + 1], ax=ax[0, index_sel_col], linewidth=1, linestyle="-")
+    
     # row 2: training functions & selected ideal functions
     for col in df_selected_ideals.columns[1:]:
         sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals[col], ax=ax[1, 0])
