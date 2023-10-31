@@ -82,5 +82,29 @@ if __name__ == "__main__":
             df_fittings.iloc[test_index, 2] = df_test_deltas.iloc[test_index, col_index_fittable_min_delta[0][0]].astype("float32")
             df_fittings.iloc[test_index, 3] = df_test_deltas.columns[col_index_fittable_min_delta[0][0]]
 
-    for f in fittings:
-        print(f)
+    # Visualization
+    ################################################################
+    fig, ax = plot.subplots(nrows=2, ncols=count_ys_selected_ideal, sharey="row", sharex="row")
+    # row 1: test data points w/ their selected ideal functions 
+    for index_sel_col in range(count_ys_selected_ideal):
+        associated_points = df_fittings[df_fittings["ideal_func"] == selected_ideal_funcs.columns[index_sel_col]]
+        for point_index in range(associated_points.shape[0]):
+        # draw vertical lines for each x_test between y_test and y_ideal
+            x_coord = associated_points["x"].iloc[point_index]
+            x_coords = [x_coord, x_coord]
+            #           y_test                          , y_ideal
+            y_coords = [associated_points["y"].iloc[point_index], \
+                       df_selected_ideals[df_selected_ideals["x"] == associated_points["x"].iloc[point_index]][associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
+            # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
+            x_coords[0] = x_coords[0] - x_coords[0]/1000         
+            sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, index_sel_col], linewidth=0.5, linestyle=":")
+        sns.scatterplot(data=associated_points, \
+                        x=associated_points["x"], y=associated_points["y"], ax=ax[0, index_sel_col], size=1, legend=False)
+    # row 2: training functions & selected ideal functions
+    for col in df_selected_ideals.columns[1:]:
+        sns.lineplot(x=df_selected_ideals["x"], y=df_selected_ideals[col], ax=ax[1, 0])
+    for col in df_train.columns[1:]:
+        sns.lineplot(x=df_train["x"], y=df_train[col], ax=ax[1,0], linewidth=0.5, linestyle=":")
+
+
+    plot.show()
