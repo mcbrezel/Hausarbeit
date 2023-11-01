@@ -68,19 +68,21 @@ if __name__ == "__main__":
     df_fittings = pd.DataFrame(np.empty(shape=(count_xs_test, 4)), columns=["x", "y", "delta", "ideal_func"], dtype="float32")
     df_fittings = df_fittings.astype({"ideal_func": "string"})
     # calculating residuals of test data compared to selected ideal functions
-    for x_coord in df_test["x"]:
-        for test_index in np.where(df_test["x"] == x_coord)[0]:
-            df_test_deltas.iloc[test_index] = (df_selected_ideals[df_selected_ideals["x"] == x_coord].iloc[:, 1:] \
-                                               - df_test.loc[df_test["x"] == x_coord]["y"][test_index]) ** 2
-            col_indices_fittable = np.where((df_train_deltas.loc[x_coord] * math.sqrt(2)) \
-                                            - df_test_deltas.loc[x_coord] > 0)
-            df_fittable_deltas = df_test_deltas.iloc[test_index].iloc[col_indices_fittable[0]]
-            col_index_fittable_min_delta = np.where(df_test_deltas.iloc[test_index] \
-                                                    == np.min(df_test_deltas.iloc[test_index]))
-            df_fittings.iloc[test_index, 0] = df_test["x"].iloc[test_index].astype("float32")
-            df_fittings.iloc[test_index, 1] = df_test["y"].iloc[test_index].astype("float32")
-            df_fittings.iloc[test_index, 2] = df_test_deltas.iloc[test_index, col_index_fittable_min_delta[0][0]].astype("float32")
-            df_fittings.iloc[test_index, 3] = df_test_deltas.columns[col_index_fittable_min_delta[0][0]]
+    for test_index in range(count_xs_test):
+        x_test = df_test.iloc[test_index]["x"]
+        # get delta of selected ideal y-values at this particular x-value and respective test y-value
+        df_test_deltas.iloc[test_index] = (df_selected_ideals[df_selected_ideals["x"] == x_test].iloc[:, 1:] \
+                                            - df_test.iloc[test_index]["y"]) ** 2
+        # take note of which ideals this test data point can be fitted to
+        col_indices_fittable = np.where((df_train_deltas.loc[x_test] * math.sqrt(2)) \
+                                        - df_test_deltas.loc[x_test] > 0)
+        # take note of ideal with the closest fit
+        col_index_fittable_min_delta = np.where(df_test_deltas.iloc[test_index] \
+                                                == np.min(df_test_deltas.iloc[test_index]))
+        df_fittings.iloc[test_index, 0] = df_test["x"].iloc[test_index].astype("float32")
+        df_fittings.iloc[test_index, 1] = df_test["y"].iloc[test_index].astype("float32")
+        df_fittings.iloc[test_index, 2] = df_test_deltas.iloc[test_index, col_index_fittable_min_delta[0][0]].astype("float32")
+        df_fittings.iloc[test_index, 3] = df_test_deltas.columns[col_index_fittable_min_delta[0][0]]
 
     # Visualization
     ################################################################
@@ -92,7 +94,6 @@ if __name__ == "__main__":
         # draw vertical lines for each x_test between y_test and y_ideal
             x_coord = associated_points["x"].iloc[point_index]
             x_coords = [x_coord, x_coord]
-            #           y_test                          , y_ideal
             y_coords = [associated_points["y"].iloc[point_index], \
                        df_selected_ideals[df_selected_ideals["x"] == associated_points["x"].iloc[point_index]][associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
             # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
