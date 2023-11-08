@@ -1,11 +1,14 @@
 import os
+import sys
+import math
 import numpy as np
 import pandas as pd
 from matplotlib import style, pyplot as plt
 import seaborn as sns
-import sys
-import math
-from fitting import Fitting
+import sqlalchemy as db
+from sqlalchemy.orm import Session
+from sqlalchemy_utils import database_exists, create_database
+from fitting import Fitting, Base
 from fitting_exceptions import DataframeEmptyException, DataUnfittableException, DataframeFormatException, InvalidIndexException
 
 class Fitter:
@@ -24,6 +27,9 @@ class Fitter:
     _df_selected_ideals = None
     _df_fittings = None
     _df_train_deltas = None
+
+    _engine = None
+    _connection = None
 
     def __init__(self, path_training_csv:str, path_ideal_csv:str, path_test_csv:str) -> None:
         if not (os.path.exists(path_training_csv) and os.path.exists(path_ideal_csv) and os.path.exists(path_test_csv))\
@@ -144,6 +150,34 @@ class Fitter:
         fig.suptitle("Selected ideal functions")
         plt.legend()
         plt.show()
+
+    def export_fittings_to_db(self, connection_string:str=None):
+        self._engine = db.create_engine(connection_string, echo=True)
+        if not database_exists(self._engine.url):
+            create_database(self._engine.url)
+        self._connection = self._engine.connect()
+        Base.metadata.create_all(bind=self._engine)
+        with Session(bind=self._engine) as session:
+            if type(self._df_fittings) == type(None):
+                raise DataframeEmptyException("An error occured during calculation of fittings dataframe")
+            for index in range(self._count_xs_test):
+                # If entry at index already exists, update it
+                if(session.query(db.exists().where(Fitting.id == index)).scalar()):
+                    session.execute(db.update(Fitting).where(Fitting.id == index).values(x = str(self._df_fittings.iloc[index]["x"]),
+                                                                                         y = str(self._df_fittings.iloc[index]["y"]),
+                                                                                         delta = str(self._df_fittings.iloc[index]["delta"]),
+                                                                                         ideal_function = self._df_fittings.iloc[index]["ideal_func"]))
+                # If entry does not yet exist, create it
+                else:
+                    fitting_entry = Fitting(
+                        id = index,
+                        x = str(self._df_fittings.iloc[index]["x"]),
+                        y = str(self._df_fittings.iloc[index]["y"]),
+                        delta = str(self._df_fittings.iloc[index]["delta"]),
+                        ideal_function = self._df_fittings.iloc[index]["ideal_func"]
+                    )
+                    session.add(fitting_entry)
+            session.commit()
 
     def _fit_(self):
         self._sum_of_least_squares_()
