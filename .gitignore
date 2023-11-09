@@ -5,3 +5,4 @@ Include/
 *.csv#
 __pycache__/
 .vscode/
+fittings.sqlite

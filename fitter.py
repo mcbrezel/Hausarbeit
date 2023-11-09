@@ -83,14 +83,11 @@ class Fitter:
         # initialize deltas as float max to be able to tell easily if values aren't getting filled in
         self._df_test_deltas = pd.DataFrame(data=np.full(shape=(self._count_xs_test, self._count_ys_selected_ideal), fill_value=sys.float_info.max), \
                                         index=self._df_test["x"], columns=self._df_selected_ideals.columns[1:], dtype="float32")
-        max_test_deltas = np.full(shape=self._count_ys_selected_ideal, fill_value=sys.float_info.max, dtype="float32")
         # calculate respective deltas between training function and its selected ideal function
         train_deltas = np.full(shape=self._df_train.iloc[:, 1:].shape, fill_value=sys.float_info.max)
-        max_train_deltas = np.full_like(a=max_test_deltas, fill_value=sys.float_info.max)
         
         for col_index in range(self._count_ys_selected_ideal):
             train_deltas[:, col_index] = (self._df_train.iloc[:, col_index + 1] - self._selected_ideal_funcs.iloc[:, col_index]) ** 2
-            max_train_deltas[col_index] = np.max(train_deltas[:, col_index])
         self._df_train_deltas = pd.DataFrame(data=train_deltas, index=self._df_train["x"], columns=self._selected_ideal_funcs.columns, dtype="float32")
         
         # container for final table data
@@ -104,8 +101,8 @@ class Fitter:
                                                 - self._df_test.iloc[test_index]["y"]) ** 2
             # take note of which ideals this test data point can be fitted to
             col_indices_fittable = np.where((self._df_train_deltas.loc[x_test] * math.sqrt(2)) \
-                                            - self._df_test_deltas.loc[x_test] > 0)
-            # take note of ideal with the closest fit
+                                            - self._df_test_deltas.iloc[test_index] > 0)
+            # take note of fittable ideal with the closest fit
             col_index_fittable_min_delta = np.where(self._df_test_deltas.iloc[test_index] \
                                                     == np.min(self._df_test_deltas.iloc[test_index, col_indices_fittable[0]]))
             self._df_fittings.iloc[test_index, 0] = self._df_test["x"].iloc[test_index].astype("float32")
@@ -152,7 +149,7 @@ class Fitter:
         plt.show()
 
     def export_fittings_to_db(self, connection_string:str=None):
-        self._engine = db.create_engine(connection_string, echo=True)
+        self._engine = db.create_engine(connection_string, echo=False)
         if not database_exists(self._engine.url):
             create_database(self._engine.url)
         self._connection = self._engine.connect()
