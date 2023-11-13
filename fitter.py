@@ -32,12 +32,20 @@ class Fitter:
     _connection = None
 
     def __init__(self, path_training_csv:str, path_ideal_csv:str, path_test_csv:str) -> None:
+        if(self._check_input_file_validity_(path_training_csv, path_ideal_csv, path_test_csv)):
+            self._load_input_(path_train=path_training_csv, path_ideal=path_ideal_csv, path_test=path_test_csv)
+            self._fit_()
+        else:
+            print("Error: Not all input files paths do not point to a valid CSV-file.")
+            return None
+
+    def _check_input_file_validity_(self, path_training_csv:str, path_ideal_csv:str, path_test_csv:str):
+        """Returns True if all given file paths point to an existing CSV-file. Raises FileNotFoundError otherwise."""
         if not (os.path.exists(path_training_csv) and os.path.exists(path_ideal_csv) and os.path.exists(path_test_csv))\
-            or not (os.path.splitext(path_training_csv)[1] == ".csv" and os.path.splitext(path_ideal_csv)[1] == ".csv" and os.path.splitext(path_test_csv)[1] == ".csv"):
+        or not (os.path.splitext(path_training_csv)[1] == ".csv" and os.path.splitext(path_ideal_csv)[1] == ".csv" and os.path.splitext(path_test_csv)[1] == ".csv"):
             raise FileNotFoundError
-        
-        self._load_input_(path_train=path_training_csv, path_ideal=path_ideal_csv, path_test=path_test_csv)
-        self._fit_()
+        else:
+            return True
 
     def _load_input_(self, path_train:str, path_ideal:str, path_test:str):
         """Loads input data into dataframes for further processing"""
