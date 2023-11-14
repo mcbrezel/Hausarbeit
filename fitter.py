@@ -162,6 +162,7 @@ class Fitter:
         plt.show()
 
     def export_fittings_to_db(self, connection_string:str=None):
+        """Uses connection_string to create/update SQLite database for storage of fitting results"""
         self._engine = db.create_engine(connection_string, echo=False)
         if not database_exists(self._engine.url):
             create_database(self._engine.url)
