@@ -162,8 +162,12 @@ class Fitter:
         plt.show()
 
     def export_fittings_to_db(self, connection_string:str=None):
-        """Uses connection_string to create/update SQLite database for storage of fitting results"""
-        self._engine = db.create_engine(connection_string, echo=False)
+        """Uses connection_string to create/update SQLite database for storage of fitting results. Returns False on connection failure."""
+        try:
+            self._engine = db.create_engine(connection_string, echo=False)
+        except db.exc.ArgumentError:
+            print("Error: Connection failure. No data will be exported")
+            return False
         if not database_exists(self._engine.url):
             create_database(self._engine.url)
         self._connection = self._engine.connect()
@@ -189,6 +193,7 @@ class Fitter:
                     )
                     session.add(fitting_entry)
             session.commit()
+        return True
 
     def _fit_(self):
         self._sum_of_least_squares_()

@@ -6,5 +6,6 @@ path_test = "data/test.csv"
 
 if __name__ == "__main__":
     fitter = Fitter(path_train, path_ideal, path_test)
-    fitter.export_fittings_to_db("sqlite:///fittings.sqlite")
+    if(fitter.export_fittings_to_db("sqlite:///fittings.sqlite") == False):
+        exit()
     fitter.visualize()
