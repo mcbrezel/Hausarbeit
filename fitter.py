@@ -105,7 +105,7 @@ class Fitter:
         for test_index in range(self._count_xs_test):
             x_test = self._df_test.iloc[test_index]["x"]
             # get delta of selected ideal y-values at this particular x-value and respective test y-value
-            self._df_test_deltas.iloc[test_index] = (self._df_selected_ideals[self._df_selected_ideals["x"] == x_test].iloc[:, 1:] \
+            self._df_test_deltas.iloc[test_index] = (self._df_selected_ideals.iloc[test_index, 1:] \
                                                 - self._df_test.iloc[test_index]["y"]) ** 2
             # take note of which ideals this test data point can be fitted to
             col_indices_fittable = np.where((self._df_train_deltas.loc[x_test] * math.sqrt(2)) \
