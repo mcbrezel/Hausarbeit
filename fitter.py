@@ -122,7 +122,7 @@ class Fitter:
                 col_index_min_delta = np.where(self._df_test_deltas.iloc[test_index] \
                                                 == np.min(self._df_test_deltas.iloc[test_index]))
                 self._df_fittings.iloc[test_index, 2] = self._df_test_deltas.iloc[test_index, col_index_min_delta[0][0]].astype("float32")
-                self._df_fittings.iloc[test_index, 3] = "N/A"
+                self._df_fittings.iloc[test_index, 3] = "N/A (closest fit: {0})".format(self._df_selected_ideals.columns[col_index_min_delta])
 
     def visualize(self):
         """Displays graphs showcasing test data points with their most fittable ideal functions and those ideal functions compared to the training functions used to select them"""
