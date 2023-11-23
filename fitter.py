@@ -136,12 +136,17 @@ class Fitter:
                 x_coord = associated_points["x"].iloc[point_index]
                 x_coords = [x_coord, x_coord]
                 y_coords = [associated_points["y"].iloc[point_index], \
-                        self._df_selected_ideals[self._df_selected_ideals["x"] == associated_points["x"].iloc[point_index]][associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
+                            self._df_selected_ideals[self._df_selected_ideals["x"] == associated_points["x"].iloc[point_index]]
+                                                    [associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
                 # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
                 x_coords[0] = x_coords[0] - x_coords[0]/10000         
-                sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, sel_col_index], linewidth=0.5, linestyle=":", color="#ff6969")
-            sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], hue=associated_points["delta"], palette=sns.color_palette("crest", as_cmap=True),ax=ax[0, sel_col_index], size=1, legend=False)
-            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[0, sel_col_index], linewidth=0.5, linestyle="-")\
+                sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, sel_col_index], 
+                             linewidth=0.5, linestyle=":", color="#ff6969")
+            sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], 
+                            hue=associated_points["delta"], palette=sns.color_palette("crest", as_cmap=True), 
+                            ax=ax[0, sel_col_index], size=1, legend=False)
+            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[0, sel_col_index], 
+                         linewidth=0.5, linestyle="-")\
                 .set(title=self._df_selected_ideals.columns[sel_col_index + 1], ylabel="")
             ax[0,0].set(ylabel="")
         ax[0,0].set(ylabel="y")
@@ -149,11 +154,15 @@ class Fitter:
         # row 2: training functions & selected ideal functions
         for col_index in range(self._count_ys_selected_ideal):
             if(col_index == self._count_ys_selected_ideal - 1):
-                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=0.5, linestyle="-", label="ideal")
-                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=1, linestyle="-", label="train")
+                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], 
+                             linewidth=0.5, linestyle="-", label="ideal")
+                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], 
+                             linewidth=1, linestyle="-", label="train")
             else:
-                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=0.5, linestyle="-")
-                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], linewidth=1, linestyle="-")
+                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], 
+                             linewidth=0.5, linestyle="-")
+                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], 
+                             linewidth=1, linestyle="-")
             ax[1, col_index].set(ylabel="")
         ax[1, 0].set(ylabel="y")
 
@@ -178,10 +187,11 @@ class Fitter:
             for index in range(self._count_xs_test):
                 # If entry at index already exists, update it
                 if(session.query(db.exists().where(Fitting.id == index)).scalar()):
-                    session.execute(db.update(Fitting).where(Fitting.id == index).values(x = str(self._df_fittings.iloc[index]["x"]),
-                                                                                         y = str(self._df_fittings.iloc[index]["y"]),
-                                                                                         delta = str(self._df_fittings.iloc[index]["delta"]),
-                                                                                         ideal_function = self._df_fittings.iloc[index]["ideal_func"]))
+                    session.execute(db.update(Fitting).where(Fitting.id == index).values(
+                                    x = str(self._df_fittings.iloc[index]["x"]),
+                                    y = str(self._df_fittings.iloc[index]["y"]),
+                                    delta = str(self._df_fittings.iloc[index]["delta"]),
+                                    ideal_function = self._df_fittings.iloc[index]["ideal_func"]))
                 # If entry does not yet exist, create it
                 else:
                     fitting_entry = Fitting(
