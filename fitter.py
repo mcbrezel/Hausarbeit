@@ -140,7 +140,7 @@ class Fitter:
                 # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
                 x_coords[0] = x_coords[0] - x_coords[0]/10000         
                 sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, sel_col_index], linewidth=0.5, linestyle=":", color="#ff6969")
-            sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], hue=associated_points["delta"], ax=ax[0, sel_col_index], size=1, legend=False)
+            sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], hue=associated_points["delta"], palette=sns.color_palette("crest", as_cmap=True),ax=ax[0, sel_col_index], size=1, legend=False)
             sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[0, sel_col_index], linewidth=0.5, linestyle="-")\
                 .set(title=self._df_selected_ideals.columns[sel_col_index + 1], ylabel="")
             ax[0,0].set(ylabel="")
