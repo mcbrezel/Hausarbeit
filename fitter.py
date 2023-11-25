@@ -127,7 +127,7 @@ class Fitter:
     def visualize(self):
         """Displays graphs showcasing test data points with their most fittable ideal functions and those ideal functions compared to the training functions used to select them"""
         sns.set_style("darkgrid")
-        fig, ax = plt.subplots(nrows=2, ncols=self._count_ys_selected_ideal, sharey="none", sharex="all")
+        fig, ax = plt.subplots(nrows=1, ncols=self._count_ys_selected_ideal, sharey="none", sharex="all")
         # row 1: test data points w/ their selected ideal functions 
         for sel_col_index in range(self._count_ys_selected_ideal):
             associated_points = self._df_fittings[self._df_fittings["ideal_func"] == self._selected_ideal_funcs.columns[sel_col_index]]
@@ -140,34 +140,24 @@ class Fitter:
                                                     [associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
                 # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
                 x_coords[0] = x_coords[0] - x_coords[0]/10000         
-                sns.lineplot(x=x_coords, y=y_coords, ax=ax[0, sel_col_index], 
+                sns.lineplot(x=x_coords, y=y_coords, ax=ax[sel_col_index], 
                              linewidth=0.5, linestyle=":", color="#ff6969")
+            # plot test data
             sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], 
                             hue=associated_points["delta"], palette=sns.color_palette("crest", as_cmap=True), 
-                            ax=ax[0, sel_col_index], size=1, legend=False)
-            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[0, sel_col_index], 
-                         linewidth=0.5, linestyle="-")\
-                .set(title=self._df_selected_ideals.columns[sel_col_index + 1], ylabel="")
-            ax[0,0].set(ylabel="")
-        ax[0,0].set(ylabel="y")
-
-        # row 2: training functions & selected ideal functions
-        for col_index in range(self._count_ys_selected_ideal):
-            if(col_index == self._count_ys_selected_ideal - 1):
-                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], 
-                             linewidth=0.5, linestyle="-", label="ideal")
-                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], 
-                             linewidth=1, linestyle="-", label="train")
-            else:
-                sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, col_index + 1], ax=ax[1, col_index], 
-                             linewidth=0.5, linestyle="-")
-                sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, col_index + 1], ax=ax[1, col_index], 
-                             linewidth=1, linestyle="-")
-            ax[1, col_index].set(ylabel="")
-        ax[1, 0].set(ylabel="y")
-
-        fig.suptitle("Selected ideal functions")
-        plt.legend()
+                            ax=ax[sel_col_index], size=1, legend=False)
+            #plot ideal functions
+            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[sel_col_index], 
+                        linewidth=0.5, linestyle="-", label=str(self._df_selected_ideals.columns[sel_col_index+1]))
+            # plot training functions
+            sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, sel_col_index + 1], ax=ax[sel_col_index], 
+                         linewidth=0.5, linestyle="-", label="Training")
+            ax[sel_col_index].set(ylabel="")
+            ax[sel_col_index].legend(fontsize=20)
+        ax[0].set(ylabel="y")
+        plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+        plt.gcf().set_size_inches(25, 6)
+        plt.savefig("../Abbildungen/fitting.pdf", pad_inches=0.0, dpi=400)
         plt.show()
 
     def export_fittings_to_db(self, connection_string:str=None):

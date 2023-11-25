@@ -6,3 +6,5 @@ Include/
 __pycache__/
 .vscode/
 fittings.sqlite
+fitting.pdf
+fitting.svg
