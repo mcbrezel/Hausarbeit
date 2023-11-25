@@ -36,9 +36,12 @@ class Test_Fitter(unittest.TestCase):
         self.assertTrue(f._check_input_file_validity_(self.path_train, self.path_ideal, self.path_test))
 
     def test_ExportFittingsToDb_WithDfFittingsMissing_RaisesDataframeEmptyException(self):
+        # Arrange
         f = Fitter(self.path_train, self.path_ideal, self.path_test)
         f._df_fittings = None
+        # Assert
         with self.assertRaises(DataframeEmptyException):
+            # Act
             f.export_fittings_to_db("sqlite:///fittings.sqlite")
 
 
