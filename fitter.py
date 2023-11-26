@@ -127,10 +127,11 @@ class Fitter:
     def visualize(self):
         """Displays graphs showcasing test data points with their most fittable ideal functions and those ideal functions compared to the training functions used to select them"""
         sns.set_style("darkgrid")
-        fig, ax = plt.subplots(nrows=1, ncols=self._count_ys_selected_ideal, sharey="none", sharex="all")
+        fig, ax = plt.subplots(nrows=math.ceil(self._count_ys_selected_ideal / 2), ncols=2, sharey="none", sharex="all")
         # row 1: test data points w/ their selected ideal functions 
         for sel_col_index in range(self._count_ys_selected_ideal):
             associated_points = self._df_fittings[self._df_fittings["ideal_func"] == self._selected_ideal_funcs.columns[sel_col_index]]
+            current_ax = ax[math.floor(sel_col_index / 2), sel_col_index % 2]
             for point_index in range(associated_points.shape[0]):
             # draw vertical lines for each x_test between y_test and y_ideal
                 x_coord = associated_points["x"].iloc[point_index]
@@ -140,23 +141,24 @@ class Fitter:
                                                     [associated_points.iloc[point_index]["ideal_func"]].iloc[0]]
                 # add the slightest horizontal offset to one end of the line since true verticals aren't rendered properly
                 x_coords[0] = x_coords[0] - x_coords[0]/10000         
-                sns.lineplot(x=x_coords, y=y_coords, ax=ax[sel_col_index], 
+                sns.lineplot(x=x_coords, y=y_coords, ax=current_ax, 
                              linewidth=0.5, linestyle=":", color="#ff6969")
             # plot test data
             sns.scatterplot(data=associated_points, x=associated_points["x"], y=associated_points["y"], 
                             hue=associated_points["delta"], palette=sns.color_palette("crest", as_cmap=True), 
-                            ax=ax[sel_col_index], size=1, legend=False)
+                            ax=current_ax, legend=False, s=100)
             #plot ideal functions
-            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=ax[sel_col_index], 
+            sns.lineplot(x=self._df_selected_ideals["x"], y=self._df_selected_ideals.iloc[:, sel_col_index + 1], ax=current_ax, 
                         linewidth=0.5, linestyle="-", label=str(self._df_selected_ideals.columns[sel_col_index+1]))
             # plot training functions
-            sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, sel_col_index + 1], ax=ax[sel_col_index], 
+            sns.lineplot(x=self._df_train["x"], y=self._df_train.iloc[:, sel_col_index + 1], ax=current_ax, 
                          linewidth=0.5, linestyle="-", label="Training")
-            ax[sel_col_index].set(ylabel="")
-            ax[sel_col_index].legend(fontsize=20)
-        ax[0].set(ylabel="y")
+            current_ax.set(ylabel="")
+            current_ax.legend(fontsize=20)
+            if (sel_col_index % 2 == 0):
+                ax[math.floor(sel_col_index / 2), 0].set(ylabel="y")
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        plt.gcf().set_size_inches(25, 6)
+        plt.gcf().set_size_inches(25, 10)
         plt.savefig("../Abbildungen/fitting.pdf", pad_inches=0.0, dpi=400)
         plt.show()
 
