@@ -127,11 +127,10 @@ class Fitter:
     def visualize(self):
         """Displays graphs showcasing test data points with their most fittable ideal functions and those ideal functions compared to the training functions used to select them"""
         sns.set_style("darkgrid")
-        fig, ax = plt.subplots(nrows=math.ceil(self._count_ys_selected_ideal / 2), ncols=2, sharey="none", sharex="all")
-        # row 1: test data points w/ their selected ideal functions 
+        fig, ax = plt.subplots(nrows=math.floor((self._count_ys_selected_ideal - 1) / 2) + 1, ncols=2, sharey="none", sharex="all")
         for sel_col_index in range(self._count_ys_selected_ideal):
-            associated_points = self._df_fittings[self._df_fittings["ideal_func"] == self._selected_ideal_funcs.columns[sel_col_index]]
             current_ax = ax[math.floor(sel_col_index / 2), sel_col_index % 2]
+            associated_points = self._df_fittings[self._df_fittings["ideal_func"] == self._selected_ideal_funcs.columns[sel_col_index]]
             for point_index in range(associated_points.shape[0]):
             # draw vertical lines for each x_test between y_test and y_ideal
                 x_coord = associated_points["x"].iloc[point_index]
@@ -158,7 +157,7 @@ class Fitter:
             if (sel_col_index % 2 == 0):
                 ax[math.floor(sel_col_index / 2), 0].set(ylabel="y")
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        plt.gcf().set_size_inches(25, 10)
+        plt.gcf().set_size_inches((math.floor(self._count_ys_selected_ideal / 2) + 1) * 12.5, 12)
         plt.savefig("../Abbildungen/fitting.pdf", pad_inches=0.0, dpi=400)
         plt.show()
 
